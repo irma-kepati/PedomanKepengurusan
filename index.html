@@ -1946,6 +1946,84 @@ h4.label {
 /* ══════════════════════════════════════════════════════════════
    LOCK SCREEN
 ══════════════════════════════════════════════════════════════ */
+/* ── Lock screen theme toggle ───────────────────────────── */
+#lock-theme-btn {
+  position: absolute;
+  bottom: 20px; right: 20px;
+  z-index: 10;
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(16px) saturate(1.8);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1),
+              background 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+#lock-theme-btn:hover  { transform: scale(1.1); background: rgba(255,255,255,0.35); }
+#lock-theme-btn:active { transform: scale(0.9); }
+
+/* Dark lock screen */
+body.dark #lock-screen {
+  background: #080c14;
+  transition: background 0s;
+}
+body.dark #lock-bg {
+  filter: grayscale(100%) brightness(0.3) contrast(1.2);
+  opacity: 0.35;
+}
+body.dark #lock-screen::before {
+  background: radial-gradient(circle, rgba(99,102,241,.12) 0%, transparent 70%);
+}
+body.dark #lock-screen::after {
+  background: radial-gradient(circle, rgba(179,157,255,.08) 0%, transparent 70%);
+}
+body.dark #lock-card {
+  background: rgba(21,27,39,0.75);
+  border-color: rgba(99,102,241,0.25);
+  box-shadow: 0 8px 40px rgba(0,0,0,.6),
+              0 2px 8px rgba(0,0,0,.4),
+              inset 0 1px 0 rgba(179,157,255,.15);
+}
+body.dark #lock-org-name { color: #c5cce6; }
+body.dark #lock-org-sub  { color: #6b7a9e; }
+body.dark #lock-title    { color: #e8eaf6; }
+body.dark #lock-desc     { color: #9fa8c7; }
+body.dark #lock-desc strong { color: #c5cce6; }
+body.dark #lock-hint     { color: #6b7a9e; }
+body.dark #lock-error    { color: #f87171 !important; }
+
+/* Shape display di dark */
+body.dark #lock-shape-display {
+  background: rgba(15,20,35,0.7);
+  border-color: rgba(99,102,241,0.35);
+}
+body.dark #lock-shape-placeholder { color: #4a5580; }
+body.dark .shape-token.selected   { background: rgba(99,102,241,0.2) !important; outline-color: rgba(99,102,241,0.5) !important; }
+
+/* Lock button di dark */
+body.dark #lock-btn {
+  background: linear-gradient(135deg, #4338ca, #6366f1);
+  box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+}
+body.dark #lock-btn:hover {
+  background: linear-gradient(135deg, #3730a3, #4f46e5);
+}
+
+/* Lock theme btn di dark */
+body.dark #lock-theme-btn {
+  background: rgba(21,27,39,0.7);
+  border-color: rgba(99,102,241,0.3);
+  color: #ffc46b;
+}
+body.dark #lock-theme-btn:hover { background: rgba(30,38,60,0.8); }
+
 #lock-screen {
   position: fixed;
   inset: 0;
@@ -2806,6 +2884,7 @@ body.dark .principle-block[style] {
 ══════════════════════════════════════════════════════════════ -->
 <div id="lock-screen" role="dialog" aria-modal="true" aria-label="Halaman proteksi password">
   <div id="lock-bg"></div>
+  <button id="lock-theme-btn" title="Toggle dark/light mode">🌙</button>
 
   <div id="lock-card">
     <div id="lock-logo-wrap">
@@ -3097,82 +3176,19 @@ function initMainPage() {
     });
   })();
 
-  // ── Dark Mode Toggle (inside capsule) ────────────────────
-  (function() {
-    const KEY = 'irma-dark';
-    const rpl = document.getElementById('theme-ripple');
-    let animating = false;
-
-    function getBtn() { return document.getElementById('bab-theme-btn'); }
-    function getThemeSep() { return document.getElementById('bab-theme-sep'); }
-
-    function applyTheme(dark) {
-      document.body.classList.toggle('dark', dark);
-      const b = getBtn();
-      if (b) b.textContent = dark ? '☀️' : '🌙';
-      // update dark override di kapsul
-      const glass = document.getElementById('bab-indicator-glass');
-      if (glass) {
-        const sep = getThemeSep();
-        if (sep) sep.classList.add('visible');
-      }
-      // (preference tidak disimpan — selalu mulai day mode)
+  // ── Dark Mode Toggle — init kapsul setelah main page siap
+  const sep = document.getElementById('bab-theme-sep');
+  if (sep) sep.classList.add('visible');
+  // Sync emoji bab-theme-btn
+  const babThemeBtn = document.getElementById('bab-theme-btn');
+  if (babThemeBtn) babThemeBtn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+  // capture click untuk bab-theme-btn
+  document.addEventListener('click', e => {
+    if (e.target && (e.target.id === 'bab-theme-btn' || e.target.closest('#bab-theme-btn'))) {
+      e.stopPropagation();
+      window.doThemeTransition(!document.body.classList.contains('dark'));
     }
-
-    function doTransition(dark) {
-      if (animating || !rpl) { applyTheme(dark); return; }
-      animating = true;
-      const btn = getBtn();
-      const rect = btn ? btn.getBoundingClientRect()
-                       : { left: window.innerWidth-40, top: window.innerHeight-40, width:40, height:40 };
-      const rx = ((rect.left + rect.width/2) / window.innerWidth * 100).toFixed(1) + '%';
-      const ry = ((rect.top  + rect.height/2) / window.innerHeight * 100).toFixed(1) + '%';
-      const oldBg = dark ? '#f9f9f7' : '#0e1117';
-      const newBg = dark ? '#0e1117' : '#f9f9f7';
-
-      rpl.style.cssText = '';
-      rpl.style.setProperty('--rx', rx);
-      rpl.style.setProperty('--ry', ry);
-      rpl.style.background = oldBg;
-
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        rpl.classList.add('ripple-expand', 'ripple-full');
-        setTimeout(() => {
-          applyTheme(dark);
-          rpl.style.transition = 'none';
-          rpl.style.background = newBg;
-          requestAnimationFrame(() => requestAnimationFrame(() => {
-            rpl.classList.remove('ripple-full', 'ripple-expand');
-            rpl.classList.add('ripple-collapse');
-            setTimeout(() => {
-              rpl.classList.remove('ripple-collapse');
-              rpl.style.cssText = '';
-              animating = false;
-            }, 560);
-          }));
-        }, 370);
-      }));
-    }
-
-    // Selalu mulai dengan day mode — tidak ikut system preference maupun localStorage
-    // User harus eksplisit toggle untuk dark mode
-    applyTheme(false);
-
-    // Theme sep selalu visible (toggle selalu ada di kapsul)
-    const sep = getThemeSep();
-    if (sep) sep.classList.add('visible');
-
-    // Exclude theme btn dari dropdown
-    const glass = document.getElementById('bab-indicator-glass');
-    // Event listener — delegate dari glass (sudah ada listener-nya)
-    // Tambah listener khusus untuk bab-theme-btn
-    document.addEventListener('click', e => {
-      if (e.target && (e.target.id === 'bab-theme-btn' || e.target.closest('#bab-theme-btn'))) {
-        e.stopPropagation();
-        doTransition(!document.body.classList.contains('dark'));
-      }
-    }, true); // capture phase supaya tidak trigger dropdown
-  })();
+  }, true);
 
 
   // Scroll reveal
@@ -3218,6 +3234,80 @@ function initMainPage() {
   }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
   document.querySelectorAll('.reveal, .reveal-group').forEach(el => revealObs.observe(el));
 }
+
+// ══════════════════════════════════════════════════════════════
+// DARK MODE — Global theme engine (tersedia sejak halaman load)
+// Diakses dari lock screen maupun main page
+// ══════════════════════════════════════════════════════════════
+(function() {
+  const rpl = document.getElementById('theme-ripple');
+  let animating = false;
+
+  function applyTheme(dark) {
+    document.body.classList.toggle('dark', dark);
+    // Update semua tombol theme
+    ['bab-theme-btn','lock-theme-btn'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.textContent = dark ? '☀️' : '🌙';
+    });
+  }
+
+  function doTransition(dark) {
+    if (animating || !rpl) { applyTheme(dark); return; }
+    animating = true;
+
+    // Pilih tombol yang aktif saat ini sebagai origin ripple
+    const btn = document.getElementById('lock-theme-btn') &&
+                document.getElementById('lock-screen') &&
+                document.getElementById('lock-screen').style.display !== 'none'
+      ? document.getElementById('lock-theme-btn')
+      : document.getElementById('bab-theme-btn');
+
+    const rect = btn ? btn.getBoundingClientRect()
+                     : { left: window.innerWidth-50, top: window.innerHeight-50, width:38, height:38 };
+    const rx = ((rect.left + rect.width/2)  / window.innerWidth  * 100).toFixed(1) + '%';
+    const ry = ((rect.top  + rect.height/2) / window.innerHeight * 100).toFixed(1) + '%';
+    const oldBg = dark ? '#f9f9f7' : '#0e1117';
+    const newBg = dark ? '#0e1117' : '#f9f9f7';
+
+    rpl.style.cssText = '';
+    rpl.style.setProperty('--rx', rx);
+    rpl.style.setProperty('--ry', ry);
+    rpl.style.background = oldBg;
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      rpl.classList.add('ripple-expand', 'ripple-full');
+      setTimeout(() => {
+        applyTheme(dark);
+        rpl.style.transition = 'none';
+        rpl.style.background = newBg;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          rpl.classList.remove('ripple-full', 'ripple-expand');
+          rpl.classList.add('ripple-collapse');
+          setTimeout(() => {
+            rpl.classList.remove('ripple-collapse');
+            rpl.style.cssText = '';
+            animating = false;
+          }, 560);
+        }));
+      }, 370);
+    }));
+  }
+
+  // Expose ke global
+  window.doThemeTransition = doTransition;
+
+  // Default: day mode
+  applyTheme(false);
+
+  // Lock screen button — tersedia langsung saat DOM siap
+  const lockBtn = document.getElementById('lock-theme-btn');
+  if (lockBtn) {
+    lockBtn.addEventListener('click', () => {
+      doTransition(!document.body.classList.contains('dark'));
+    });
+  }
+})();
 
 // ══════════════════════════════════════════════════════════════
 // LOCK SCREEN — AES-256-GCM + PBKDF2-SHA256 (310,000 iterations)
