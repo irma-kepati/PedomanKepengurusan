@@ -182,32 +182,7 @@ body.dark #dark-toggle {
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
-/* ── Dark toggle button — day mode ── */
-#dark-toggle {
-  position: fixed;
-  bottom: 28px; right: 28px;
-  z-index: 9998;
-  width: 40px; height: 40px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px;
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(28px) saturate(2.2);
-  -webkit-backdrop-filter: blur(28px) saturate(2.2);
-  border: 1px solid rgba(255,255,255,0.7);
-  border-radius: 999px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12), inset 0 1.5px 0 rgba(255,255,255,0.9);
-  cursor: pointer;
-  color: #2d6a4f;
-  opacity: 0;
-  visibility: hidden;
-  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s, visibility 0s 0.3s;
-  user-select: none;
-  border: none;
-  -webkit-tap-highlight-color: transparent;
-}
-#dark-toggle.visible { opacity:1; visibility:visible; transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s; }
-#dark-toggle:hover  { transform: scale(1.12); }
-#dark-toggle:active { transform: scale(0.9); }
+/* dark-toggle moved into bab-indicator capsule */
 
 /* Ripple */
 #theme-ripple {
@@ -621,11 +596,15 @@ body {
 .sub-section h3::before {
   content: '';
   display: inline-block;
-  width: 4px; height: 18px;
+  width: 4px;
+  /* height mengikuti font-size teks agar proporsional */
+  height: 1em;
   border-radius: 2px;
   background: currentColor;
-  opacity: .6;
+  opacity: .7;
   flex-shrink: 0;
+  /* align ke tengah teks */
+  align-self: center;
 }
 
 /* ── H4 ──────────────────────────────────────────────────────── */
@@ -2464,6 +2443,29 @@ h4.label {
 #bab-indicator-glass.on-dark #bab-scroll-btn svg { stroke: rgba(255,255,255,0.85); }
 #bab-indicator-glass.on-dark #bab-scroll-btn:hover svg { stroke: white; }
 
+/* Theme toggle inside capsule */
+#bab-theme-sep {
+  width: 1px; height: 14px;
+  background: rgba(45,106,79,0.22);
+  flex-shrink: 0; margin: 0 2px;
+  opacity: 0; transform: scaleY(0.4);
+  transition: opacity 0.28s cubic-bezier(0.22,1,0.36,1),
+              transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
+}
+#bab-theme-sep.visible { opacity:1; transform:scaleY(1); }
+#bab-theme-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 0; width: 22px; height: 20px;
+  font-size: 13px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+#bab-theme-btn:hover  { transform: scale(1.2); }
+#bab-theme-btn:active { transform: scale(0.88); }
+#bab-indicator-glass.on-dark #bab-theme-sep { background: rgba(255,255,255,0.22); }
+
 /* Dot aktif */
 #bab-dot {
   width:6px; height:6px; border-radius:50%;
@@ -2556,56 +2558,239 @@ h4.label {
 @media (max-width: 900px) {
   #bab-indicator {
     bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
   }
   #bab-indicator-glass { padding:6px 12px 6px 9px; gap:6px; }
   #bab-active-label { font-size:11px; }
   #bab-dropdown { min-width:200px; }
 }
-/* ── Additional dark mode fixes ──────────────── */
-/* Principle block */
-body.dark .principle-block { background: var(--s1); border-color: var(--border); }
-/* Timeline dot number contrast */
-body.dark .tl-dot { color: #000 !important; }
-/* Doc table header */
-body.dark .doc-table th { background: var(--s2) !important; color: var(--text2) !important; }
-/* Compare table */
-body.dark .compare-table th { background: var(--s2) !important; color: var(--text2) !important; }
-/* Card-attention */
-body.dark .card-attention { background: rgba(255,196,107,0.09) !important; border-left-color: #ffab3a !important; }
-/* Closing/penutup section */
-body.dark .closing { background: #0a0d14 !important; }
-/* Prose text */
-body.dark .prose { color: var(--text2) !important; }
-/* Flow container */
-body.dark .flow { background: var(--s2) !important; border-color: var(--border) !important; }
-body.dark .step-flow { background: var(--s2) !important; border-color: var(--border) !important; }
-/* Sub-section heading */
-body.dark .sub-section h3 { color: var(--text) !important; }
-body.dark .bab-label { color: var(--text2) !important; }
+/* ══════════════════════════════════════════════════════
+   DARK MODE — WCAG AA Contrast Fixes
+   Semua teks: min 4.5:1 vs background
+   bg #0e1117 → text #e8eaf6 = ~14:1 ✓
+   bg #151b27 → text #e8eaf6 = ~12:1 ✓
+   bg #1c2438 → text #9fa8c7 = ~5.2:1 ✓
+   ══════════════════════════════════════════════════════ */
+
+/* Base text selalu terbaca */
+body.dark { color: #e8eaf6; }
+body.dark p      { color: #c5cce6; }   /* 7.5:1 vs #0e1117 */
+body.dark li     { color: #c5cce6; }
+body.dark strong { color: #e8eaf6; }
+body.dark h2, body.dark h3, body.dark h4, body.dark h5 { color: #e8eaf6; }
+
+/* Prose */
+body.dark .prose { color: #c5cce6 !important; }
+body.dark .tl-body { color: #b0bad8 !important; }
+
+/* Timeline dot — teks hitam kontras di atas warna terang */
+body.dark .tl-dot { color: #fff !important; }
+body.dark .tl-title { color: #e8eaf6 !important; }
+
+/* Cards — teks dalam card */
+body.dark .card-title { color: #ffc46b !important; }  /* amber 8:1 vs #151b27 */
+body.dark .card ul li { color: #c5cce6 !important; }
+
+/* Sekbid */
+body.dark .sekbid-col h5     { color: #c9bcff !important; } /* violet lebih terang, 6:1 */
+body.dark .sekbid-col ul li  { color: #b0bad8 !important; }
+body.dark .sekbid-head-text h4 { color: #e8eaf6 !important; }
+body.dark .sekbid-head-text p  { color: #9fa8c7 !important; }
+body.dark .sekbid-head { background: #1c2438 !important; } /* override inline style gradient */
+
+/* Eval cards */
+body.dark .ec-title { color: #e8eaf6 !important; }
+body.dark .ec-desc  { color: #9fa8c7 !important; }  /* 5.2:1 ✓ */
+
+/* Callout text */
+body.dark .callout-body        { color: #e8eaf6 !important; }
+body.dark .callout-body strong { color: #ffc46b !important; }
+
+/* Flow boxes — teks selalu terbaca */
+body.dark .flow-text  { color: #e8eaf6 !important; background: #1c2438 !important; border-color: #3a4a6e !important; }
+body.dark .fh-box     { color: #e8eaf6 !important; background: #1c2438 !important; border-color: #3a4a6e !important; }
+body.dark .sf-box     { color: #e8eaf6 !important; background: #1c2438 !important; border-color: #3a4a6e !important; }
+body.dark .sfv-box    { color: #e8eaf6 !important; background: #1c2438 !important; border-color: #3a4a6e !important; }
+body.dark .sf-box.accent        { color: #6ee7a0 !important; background: rgba(74,222,128,0.14) !important; }
+body.dark .sf-box.accent-blue   { color: #93c5fd !important; background: rgba(96,165,250,0.14) !important; }
+body.dark .sf-box.accent-yellow { color: #fcd34d !important; background: rgba(252,211,77,0.14) !important; }
+body.dark .sf-box.accent-orange { color: #fca5a5 !important; background: rgba(248,113,113,0.14) !important; }
+body.dark .flow-arrow, body.dark .sf-arrow, body.dark .fh-arrow { color: #3a4a6e !important; }
+
+/* Tables */
+body.dark .compare-table th,
+body.dark .doc-table th { background: #1c2438 !important; color: #9fa8c7 !important; border-color: #2a3555 !important; }
+body.dark .compare-table td,
+body.dark .doc-table td { color: #c5cce6 !important; border-color: #2a3555 !important; }
+body.dark .compare-table tr:nth-child(odd) td,
+body.dark .doc-table tr:nth-child(even) td { background: rgba(255,255,255,0.025) !important; }
+
+/* Principle */
+body.dark .p-title { color: #5c6a8a !important; }
+body.dark .p-num   { background: rgba(255,196,107,0.15) !important; color: #ffc46b !important; }
+body.dark .p-item  { color: #c5cce6 !important; }
+
+/* Card attention */
+body.dark .card-attention { background: rgba(255,196,107,0.08) !important; border-left-color: #ffab3a !important; border-color: rgba(255,196,107,0.2) !important; }
+
+/* Tags */
+body.dark .tag-added { background: rgba(255,196,107,0.12) !important; border-color: rgba(255,196,107,0.3) !important; color: #ffc46b !important; }
+
+/* Closing */
+body.dark .closing { background: #080b12 !important; }
+body.dark .closing h2 { color: #e8eaf6 !important; }
+body.dark .closing p  { color: rgba(200,210,240,0.8) !important; }
+
+/* Headings */
+body.dark .section-title { color: #e8eaf6 !important; }
+body.dark .section-desc  { color: #9fa8c7 !important; }
+/* Sub-section heading teks putih di dark, tapi garis tetap warna accent */
+body.dark .sub-section h3 { color: #e8eaf6 !important; }
+/* Garis vertikal: gunakan accent color per class agar tetap berwarna di dark */
+body.dark .sub-section h3.c1::before { background: #4ade80 !important; opacity: 1; }
+body.dark .sub-section h3.c2::before { background: #60a5fa !important; opacity: 1; }
+body.dark .sub-section h3.c3::before { background: #fb923c !important; opacity: 1; }
+body.dark .sub-section h3.c4::before { background: #c084fc !important; opacity: 1; }
+body.dark .sub-section h3.c5::before { background: #f87171 !important; opacity: 1; }
+body.dark .sub-section h3.c6::before { background: #22d3ee !important; opacity: 1; }
+body.dark .sub-section h3.c7::before { background: #a3e635 !important; opacity: 1; }
+/* Fallback: semua garis hijau terang */
+body.dark .sub-section h3::before { background: #4ade80; opacity: 0.9; }
+body.dark .bab-label { color: #9fa8c7 !important; }
+
 /* Divider */
-body.dark .divider { background: var(--border) !important; }
-/* Doc table even row */
-body.dark .doc-table tr:nth-child(even) td { background: rgba(255,255,255,0.02) !important; }
-/* Compare odd row */
-body.dark .compare-table tr:nth-child(odd) td { background: rgba(255,255,255,0.02) !important; }
-/* Section block bg */
-body.dark .bab { background: transparent; }
-/* Bab-header icon bg — semua accent sudah di .bg1-.bg7 */
-/* Penutup/closing text */
-body.dark .closing h2 { color: #fff !important; }
-body.dark .closing p  { color: rgba(255,255,255,0.75) !important; }
-/* Tag badge */
-body.dark .tag-added { background: rgba(255,196,107,0.12); border-color: rgba(255,196,107,0.3); color: var(--amber); }
-/* Nav section label */
-body.dark .nav-section { color: var(--muted) !important; }
+body.dark .divider { background: #2a3555 !important; }
+
+/* Flow/step containers */
+body.dark .flow, body.dark .step-flow { background: #1c2438 !important; border-color: #2a3555 !important; }
+body.dark .diagram-wrap { background: #151b27 !important; }
+
+/* Nav */
+body.dark .nav-section { color: #5c6a8a !important; }
+body.dark .nav-item    { color: #9fa8c7 !important; }
+body.dark .nav-item:hover  { background: #232d47 !important; color: #e8eaf6 !important; }
+body.dark .nav-item.active { color: #ffc46b !important; }
+
 /* Scrollbar */
-body.dark ::-webkit-scrollbar-track { background: var(--bg); }
-body.dark ::-webkit-scrollbar-thumb { background: var(--s3); }
-body.dark ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
-/* Progress bar indigo */
+body.dark ::-webkit-scrollbar-track { background: #0e1117; }
+body.dark ::-webkit-scrollbar-thumb { background: #2a3555; }
+body.dark ::-webkit-scrollbar-thumb:hover { background: #3a4a6e; }
+
+/* Progress bar */
 body.dark #progress-bar { background: linear-gradient(90deg,#6366f1,#a78bfa) !important; }
+
+/* BAB indicator theme btn */
+body.dark #bab-theme-sep { background: rgba(99,102,241,0.3) !important; }
+body.dark #bab-theme-btn { color: #ffc46b !important; filter: none; }
+
+/* ══════════════════════════════════════════════════
+   DARK MODE — Specific element fixes (per feedback)
+   ══════════════════════════════════════════════════ */
+
+/* 1. Cover subtitle — abu keputihan */
+body.dark .cover-sub { color: rgba(220,225,245,0.72) !important; }
+
+/* 2. card-attention (Hal yang Dikoordinasikan)
+      - title sudah kuning via card-title
+      - li dengan inline color:#5a3e00 → override ke kuning cerah */
+body.dark .card-attention li { color: #fcd34d !important; }
+body.dark .card-attention [style*="color:#5a3e00"],
+body.dark .card-attention [style*="color: #5a3e00"] { color: #fcd34d !important; }
+body.dark .card-attention .card-title,
+body.dark .card-attention [style*="color:#7d5a00"] { color: #ffc46b !important; }
+
+/* 3. tl-dot — teks hitam agar kontras dengan lingkaran berwarna */
+body.dark .tl-dot { color: #000 !important; font-weight: 800 !important; }
+
+/* 4. Card p dengan color:var(--muted) — lebih cerah di dark */
+body.dark .card > p[style*="color:var(--muted)"],
+body.dark .card p[style*="color:var(--muted)"] { color: #b0bad8 !important; }
+/* Kewenangan/Batasan — p desc di dalam card */
+body.dark .card p { color: #b0bad8 !important; }
+body.dark .card ul li { color: #c5cce6 !important; }
+
+/* 5. compare-table thead — pertahankan warna accent tapi teks putih */
+body.dark .compare-table th,
+body.dark .compare-table th[style] {
+  color: #ffffff !important;
+  opacity: 0.92;
+  /* background dari inline style tetap dipakai, hanya tambah sedikit gelap */
+  filter: brightness(0.75) saturate(1.2) !important;
+}
+
+/* 6. Teks dengan color:var(--muted) — cerahkan di dark */
+body.dark [style*="color:var(--muted)"] { color: #b0bad8 !important; }
+body.dark [style*="color: var(--muted)"] { color: #b0bad8 !important; }
+
+/* 7. card-attention (Pertanyaan Evaluasi, dll) — override inline bg kuning */
+body.dark .card-attention,
+body.dark .card-attention[style] {
+  background: rgba(60,46,10,0.85) !important;   /* kuning-coklat gelap */
+  border-color: rgba(255,196,107,0.35) !important;
+  border-left-color: #ffc46b !important;
+  border-left-width: 4px !important;
+}
+/* Title tetap amber */
+body.dark .card-attention .card-title,
+body.dark .card-attention [style*="color:#7d5a00"] { color: #ffc46b !important; }
+/* Li teks putih */
+body.dark .card-attention li,
+body.dark .card-attention [style*="color:#5a3e00"] { color: #ffffff !important; }
+
+/* 8. principle-block dengan inline gradient hijau */
+body.dark .principle-block,
+body.dark .principle-block[style] {
+  background: #151b27 !important;
+  border-color: #2a3555 !important;
+}
+body.dark .principle-block .p-title { color: #9fa8c7 !important; }
+body.dark .principle-block .p-num   { background: rgba(255,196,107,0.15) !important; color: #ffc46b !important; }
+body.dark .principle-block .p-item  { color: #c5cce6 !important; }
+
+/* 9. Closing/Penutup — biarkan seperti day mode (override dark) */
+body.dark .closing {
+  /* Gunakan warna asli cover yang gelap — sudah matching */
+  background: var(--closing-bg, #1a5c3e) !important;
+}
+/* Reset teks closing ke aslinya */
+body.dark .closing h2 { color: #ffffff !important; }
+body.dark .closing p  { color: rgba(255,255,255,0.85) !important; }
+body.dark .closing ul li { color: rgba(255,255,255,0.85) !important; }
+body.dark .closing ul li::before { color: #a8e6c4 !important; }
+
+/* 10. Teks li dengan inline color dark (bab content) */
+body.dark li[style*="font-size:12px"] { color: #c5cce6 !important; }
+body.dark li[style*="font-size:13px"] { color: #c5cce6 !important; }
+
+/* 11. p dengan font-size:12px color muted */
+body.dark p[style*="font-size:12px"],
+body.dark p[style*="font-size:12.5px"] { color: #b0bad8 !important; }
+
+/* 12. Card dengan inline background kuning/abu — Pertanyaan Evaluasi, Format Laporan, dll */
+body.dark .card[style],
+body.dark .card[style*="background"] {
+  background: #1c2438 !important;
+  border-color: #2a3555 !important;
+}
+body.dark .card[style] li,
+body.dark .card[style] p { color: #c5cce6 !important; }
+
+/* 13. card-attention li — teks putih */
+body.dark .card-attention li,
+body.dark .card-attention [style*="color:#5a3e00"],
+body.dark .card-attention [style*="color: #5a3e00"] {
+  color: #ffffff !important;
+}
+
+/* 14. Default day mode — pastikan tidak ada class dark saat load */
+
+/* 15. Principle block dengan inline gradient */
+body.dark [class*="principle"][style],
+body.dark .principle-block[style] {
+  background: #151b27 !important;
+}
 
 </style>
   </head>
@@ -2794,10 +2979,40 @@ function initMainPage() {
       ddOpen = false;
       dropdown.classList.remove('open');
     }
+    // ── Zone-based click: tentukan zona berdasarkan posisi X klik
+    // Glass layout (kiri→kanan): [dots][sep][dot][label][scroll-sep][scroll-btn][theme-sep][theme-btn]
     glass.addEventListener('click', e => {
-      // Jangan buka dropdown saat klik tombol scroll-to-top
-      if (e.target.closest('#bab-scroll-btn')) return;
-      ddOpen ? closeDropdown() : openDropdown();
+      const t = e.target;
+
+      // Klik langsung di tombol — jalankan aksi tombol, jangan dropdown
+      if (t.closest('#bab-scroll-btn')) return;
+      if (t.closest('#bab-theme-btn'))  return;
+      if (t.closest('.bab-mini-dot'))   return;
+
+      // Tentukan zona berdasarkan posisi X relatif terhadap elemen kapsul
+      const scrollSep  = document.getElementById('bab-scroll-sep');
+      const themeSep   = document.getElementById('bab-theme-sep');
+      const scrollBtn  = document.getElementById('bab-scroll-btn');
+      const themeBtn   = document.getElementById('bab-theme-btn');
+
+      const clickX = e.clientX;
+
+      // Batas zona: kiri scroll-sep → area label/dropdown
+      //             kiri theme-sep  → area scroll (klik → scroll to top)
+      //             kanan theme-sep → area theme  (klik → toggle theme)
+      const scrollSepX = scrollSep ? scrollSep.getBoundingClientRect().left : Infinity;
+      const themeSepX  = themeSep  ? themeSep.getBoundingClientRect().left  : Infinity;
+
+      if (clickX >= themeSepX) {
+        // Zona theme toggle
+        if (themeBtn) themeBtn.click();
+      } else if (clickX >= scrollSepX) {
+        // Zona scroll to top
+        if (scrollBtn) scrollBtn.click();
+      } else {
+        // Zona label/dropdown
+        ddOpen ? closeDropdown() : openDropdown();
+      }
     });
     document.addEventListener('click', e => { if (!glass.contains(e.target)) closeDropdown(); });
 
@@ -2882,25 +3097,36 @@ function initMainPage() {
     });
   })();
 
-  // ── Dark Mode Toggle ─────────────────────────────────────
+  // ── Dark Mode Toggle (inside capsule) ────────────────────
   (function() {
-    const KEY  = 'irma-dark';
-    const btn  = document.getElementById('dark-toggle');
-    const rpl  = document.getElementById('theme-ripple');
+    const KEY = 'irma-dark';
+    const rpl = document.getElementById('theme-ripple');
     let animating = false;
+
+    function getBtn() { return document.getElementById('bab-theme-btn'); }
+    function getThemeSep() { return document.getElementById('bab-theme-sep'); }
 
     function applyTheme(dark) {
       document.body.classList.toggle('dark', dark);
-      if (btn) btn.textContent = dark ? '☀️' : '🌙';
-      try { localStorage.setItem(KEY, dark ? '1' : '0'); } catch(e) {}
+      const b = getBtn();
+      if (b) b.textContent = dark ? '☀️' : '🌙';
+      // update dark override di kapsul
+      const glass = document.getElementById('bab-indicator-glass');
+      if (glass) {
+        const sep = getThemeSep();
+        if (sep) sep.classList.add('visible');
+      }
+      // (preference tidak disimpan — selalu mulai day mode)
     }
 
     function doTransition(dark) {
-      if (animating || !btn || !rpl) { applyTheme(dark); return; }
+      if (animating || !rpl) { applyTheme(dark); return; }
       animating = true;
-      const rect = btn.getBoundingClientRect();
+      const btn = getBtn();
+      const rect = btn ? btn.getBoundingClientRect()
+                       : { left: window.innerWidth-40, top: window.innerHeight-40, width:40, height:40 };
       const rx = ((rect.left + rect.width/2) / window.innerWidth * 100).toFixed(1) + '%';
-      const ry = ((rect.top + rect.height/2) / window.innerHeight * 100).toFixed(1) + '%';
+      const ry = ((rect.top  + rect.height/2) / window.innerHeight * 100).toFixed(1) + '%';
       const oldBg = dark ? '#f9f9f7' : '#0e1117';
       const newBg = dark ? '#0e1117' : '#f9f9f7';
 
@@ -2928,17 +3154,24 @@ function initMainPage() {
       }));
     }
 
-    let saved = null;
-    try { saved = localStorage.getItem(KEY); } catch(e) {}
-    if (saved === null) saved = window.matchMedia('(prefers-color-scheme: dark)').matches ? '1' : '0';
-    applyTheme(saved === '1');
+    // Selalu mulai dengan day mode — tidak ikut system preference maupun localStorage
+    // User harus eksplisit toggle untuk dark mode
+    applyTheme(false);
 
-    if (btn) {
-      btn.classList.add('visible');
-      btn.addEventListener('click', () => {
+    // Theme sep selalu visible (toggle selalu ada di kapsul)
+    const sep = getThemeSep();
+    if (sep) sep.classList.add('visible');
+
+    // Exclude theme btn dari dropdown
+    const glass = document.getElementById('bab-indicator-glass');
+    // Event listener — delegate dari glass (sudah ada listener-nya)
+    // Tambah listener khusus untuk bab-theme-btn
+    document.addEventListener('click', e => {
+      if (e.target && (e.target.id === 'bab-theme-btn' || e.target.closest('#bab-theme-btn'))) {
+        e.stopPropagation();
         doTransition(!document.body.classList.contains('dark'));
-      });
-    }
+      }
+    }, true); // capture phase supaya tidak trigger dropdown
   })();
 
 
@@ -3439,6 +3672,8 @@ function runTitleScramble() {
           <polyline points="3,11 8,5 13,11"/>
         </svg>
       </button>
+      <div id="bab-theme-sep"></div>
+      <button id="bab-theme-btn" title="Toggle dark/light">🌙</button>
     </div>
   </div>
 </div>
