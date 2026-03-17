@@ -2645,6 +2645,22 @@ body.dark #lock-theme-btn:hover { background: rgba(30,38,60,0.8); }
   #bab-indicator-glass { padding:6px 12px 6px 9px; gap:6px; }
   #bab-active-label { font-size:11px; }
   #bab-dropdown { min-width:200px; }
+
+  /* Lock screen toggle di mobile: floating pojok kanan bawah */
+  #lock-theme-btn {
+    left: auto !important;
+    right: 20px !important;
+    bottom: 24px !important;
+    top: auto !important;
+    transform: none !important;
+    margin-top: 0 !important;
+    width: 44px !important; height: 44px !important;
+    font-size: 18px !important;
+    box-shadow: 0 6px 24px rgba(99,102,241,0.35),
+                inset 0 1px 0 rgba(179,157,255,0.15) !important;
+  }
+  #lock-theme-btn:hover  { transform: scale(1.1) !important; }
+  #lock-theme-btn:active { transform: scale(0.9) !important; }
 }
 /* ══════════════════════════════════════════════════════
    DARK MODE — WCAG AA Contrast Fixes
